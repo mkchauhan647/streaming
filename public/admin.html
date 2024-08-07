@@ -1,0 +1,24 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+
+
+    <script>
+        function connectiAdmin(){
+            const pass = prompt("Enter the password to connect to the admin panel");
+
+            window.location.href = "http://localhost:3001/admin?pass=" + pass;
+        }
+        // window.location.href = "http://localhost:8000/admin";
+        // connectiAdmin();
+        onload = connectiAdmin();
+    </script>
+</body>
+</html>
