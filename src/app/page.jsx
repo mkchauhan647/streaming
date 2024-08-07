@@ -12,7 +12,7 @@ const User = () => {
     console.log("Start Stream");
 
     const newPeer = new RTCPeerConnection();
-    const newSocket = io();
+    const newSocket = io("https://ninth-bejewled-saver.glitch.me");
 
     setPeer(newPeer);
     setSocket(newSocket);

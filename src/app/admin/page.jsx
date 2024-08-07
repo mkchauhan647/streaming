@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import io from "socket.io-client";
 
 const Admin = () => {
-  const [peers, setPeers] = useState([]);
+  // const [peers, setPeers] = useState([]);
   const [socket, setSocket] = useState(null);
   const [stream, setStream] = useState(null);
   const peersRef = useRef([]);
@@ -12,7 +12,7 @@ const Admin = () => {
   async function authorize(){
     try {
       const pass = prompt("Enter the password");
-      const response = await fetch("http://localhost:3001/auth", {
+      const response = await fetch("https://ninth-bejewled-saver.glitch.me/auth", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -44,7 +44,7 @@ const Admin = () => {
 
 
     try {
-      const response = await fetch("http://localhost:3000/stream-status");
+      const response = await fetch("https://ninth-bejewled-saver.glitch.me/stream-status");
       if (response.ok) {
         const data = await response.json();
         if (data.streaming) {
@@ -55,7 +55,7 @@ const Admin = () => {
       console.log(error);
     }
 
-    const newSocket = io();
+    const newSocket = io('https://ninth-bejewled-saver.glitch.me');
 
     const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
     setStream(stream);
@@ -67,7 +67,7 @@ const Admin = () => {
     newSocket.on('newPeer', (userId) => {
       const newPeer = new RTCPeerConnection();
       peersRef.current.push({ peerId: userId, peer: newPeer });
-      setPeers([...peersRef.current]);
+      // setPeers([...peersRef.current]);
 
       newPeer.onicecandidate = (event) => {
         if (event.candidate) {
@@ -109,7 +109,7 @@ const Admin = () => {
 
   const handleStopStream = async () => {
     try {
-      const response = await fetch("http://localhost:5000/stream-status");
+      const response = await fetch("https://ninth-bejewled-saver.glitch.me/stream-status");
       if (response.ok) {
         const data = await response.json();
         if (!data.streaming) {
@@ -125,22 +125,38 @@ const Admin = () => {
       video.srcObject.getTracks().forEach(track => track.stop());
     }
 
-    setPeers([]);
+
+    if (socket) {
+      socket.close();
+    }
+
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+    }
+
+    if (peersRef.current) {
+      peersRef.current.forEach(peer => {
+        peer.peer.close();
+      });
+    }
+
+
+    // setPeers([]);
     setSocket(null);
     setStream(null);
     peersRef.current = [];
   }
 
 
-  useEffect(() => {
+  // useEffect(() => {
     
     
 
-    // authorize();
+  //   // authorize();
 
 
 
-  },[])
+  // },[])
 
 
   return (
