@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import io from 'socket.io-client';
 
-const socket = io();
+const socket = io("https://near-slime-lemonade.glitch.me");
 
 const AdminPage = () => {
   const [room, setRoom] = useState('');
