@@ -11,8 +11,26 @@ const User = () => {
   const handleStartStream = async () => {
     console.log("Start Stream");
 
-    const newPeer = new RTCPeerConnection();
-    const newSocket = io("https://ninth-bejewled-saver.glitch.me");
+    // const newPeer = new RTCPeerConnection();
+    const configuration = { 
+      iceServers: [{
+        urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302','stun:stun3.l.google.com:19302','stun:stun4.l.google.com:19302'],
+        
+      }],
+      iceCandidatePoolSize: 10,
+      // Add TURN server here if available
+    };
+    const newPeer = new RTCPeerConnection(configuration);
+    // const newSocket = io("https://ninth-bejewled-saver.glitch.me");
+    // const newSocket = io('http://192.168.31.87:3001');
+    // const newSocket = io('http://localhost:3000');
+    const getUrl = window.location;
+
+    // alert(getUrl);
+
+    console.log("getUrl", getUrl);
+
+    const newSocket = io(getUrl.origin)
 
     setPeer(newPeer);
     setSocket(newSocket);

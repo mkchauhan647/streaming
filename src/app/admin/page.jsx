@@ -6,6 +6,7 @@ const Admin = () => {
   // const [peers, setPeers] = useState([]);
   const [socket, setSocket] = useState(null);
   const [stream, setStream] = useState(null);
+  const [localOffer, setLocalOffer] = useState(null);
   const peersRef = useRef([]);
 
 
@@ -36,26 +37,30 @@ const Admin = () => {
 
     // console.log(authorize());
 
-    if (! (await authorize())) {
-      // document.write("Unauthorized");
-      return;
-    }
+    // if (! (await authorize())) {
+    //   // document.write("Unauthorized");
+    //   return;
+    // }
 
 
 
-    try {
-      const response = await fetch("https://ninth-bejewled-saver.glitch.me/stream-status");
-      if (response.ok) {
-        const data = await response.json();
-        if (data.streaming) {
-          return alert("Stream is already started");
-        }
-      }
-    } catch (error) {
-      console.log(error);
-    }
+    // try {
+    //   const response = await fetch("https://ninth-bejewled-saver.glitch.me/stream-status");
+    //   if (response.ok) {
+    //     const data = await response.json();
+    //     if (data.streaming) {
+    //       return alert("Stream is already started");
+    //     }
+    //   }
+    // } catch (error) {
+    //   console.log(error);
+    // }
 
-    const newSocket = io('https://ninth-bejewled-saver.glitch.me');
+    // const newSocket = io('https://ninth-bejewled-saver.glitch.me');
+    // const newSocket = io('http://192.168.31.87:3001');
+    // const newSocket = io('http://localhost:3000');
+    const getUrl = window.location;
+    const newSocket = io(getUrl.origin);
 
     const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
     setStream(stream);
@@ -64,9 +69,13 @@ const Admin = () => {
 
     newSocket.emit('registerAdmin');
 
-    newSocket.on('newPeer', (userId) => {
-      const newPeer = new RTCPeerConnection();
-      peersRef.current.push({ peerId: userId, peer: newPeer });
+    newSocket.on('newPeer', async (userId) => {
+      // const newPeer = new RTCPeerConnection();
+      const configuration = { 
+        iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] // Add TURN server here if available
+      };
+      const newPeer = new RTCPeerConnection(configuration);
+      // peersRef.current.push({ peerId: userId, peer: newPeer });
       // setPeers([...peersRef.current]);
 
       newPeer.onicecandidate = (event) => {
@@ -77,11 +86,20 @@ const Admin = () => {
 
       stream.getTracks().forEach(track => newPeer.addTrack(track, stream));
 
-      newPeer.createOffer().then((offer) => {
-        return newPeer.setLocalDescription(offer);
-      }).then(() => {
-        newSocket.emit("offer", { userId, offer: newPeer.localDescription });
-      });
+      // newPeer.createOffer().then((offer) => {
+      //   return newPeer.setLocalDescription(offer);
+      // }).then(() => {
+      //   newSocket.emit("offer", { userId, offer: newPeer.localDescription });
+      // });
+
+      const offer = await newPeer.createOffer();
+      await newPeer.setLocalDescription(offer);
+      newSocket.emit("offer", { userId, offer: newPeer.localDescription });
+
+      // newPeer.ontrack = (event) => {
+      //   const video = document.getElementById("video");
+      //   video.srcObject = event.streams[0];
+      // }
 
       newSocket.on("answer", async (answer) => {
         // const peerObj = peersRef.current.find(p => p.peerId === answer.userId);

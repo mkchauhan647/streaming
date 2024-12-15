@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin WebRTC</title>
+</head>
+<body>
+    <h1>Admin Page</h1>
+    <video id="localVideo" autoplay playsinline muted></video>
+    <video id="remoteVideo" autoplay playsinline></video>
+    <br>
+    <textarea id="offer" placeholder="Generated Offer" rows="10" cols="50"></textarea>
+    <br>
+    <button id="generateOffer">Generate Offer</button>
+    <br><br>
+    <textarea id="answer" placeholder="Paste Answer from Client" rows="10" cols="50"></textarea>
+    <br>
+    <button id="setAnswer">Set Answer</button>
+    <br><br>
+    <textarea id="iceCandidates" placeholder="Generated ICE Candidates" rows="10" cols="50"></textarea>
+    <br>
+    <textarea id="remoteIce" placeholder="Paste ICE Candidates from Client" rows="10" cols="50"></textarea>
+    <br>
+    <button id="addRemoteIce">Add Remote ICE Candidates</button>
+
+    <script>
+        const peerConnection = new RTCPeerConnection({
+            iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+        });
+
+        const localVideo = document.getElementById('localVideo');
+        const remoteVideo = document.getElementById('remoteVideo');
+
+        // Access local media stream
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+            .then(stream => {
+                localVideo.srcObject = stream;
+                stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
+            })
+            .catch(error => console.error('Error accessing media devices:', error));
+
+        // Display remote stream
+        peerConnection.ontrack = event => {
+            const [remoteStream] = event.streams;
+            remoteVideo.srcObject = remoteStream;
+        };
+
+        // Handle ICE candidates
+        peerConnection.onicecandidate = event => {
+            if (event.candidate) {
+                document.getElementById('iceCandidates').value += JSON.stringify(event.candidate) + '\n';
+            }
+        };
+
+        document.getElementById('generateOffer').addEventListener('click', async () => {
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
+            document.getElementById('offer').value = JSON.stringify(peerConnection.localDescription);
+        });
+
+        document.getElementById('setAnswer').addEventListener('click', async () => {
+            const answer = document.getElementById('answer').value;
+            if (answer) {
+                await peerConnection.setRemoteDescription(JSON.parse(answer));
+                alert('Answer set successfully!');
+            } else {
+                alert('Please paste a valid answer.');
+            }
+        });
+
+        document.getElementById('addRemoteIce').addEventListener('click', () => {
+            const iceCandidates = document.getElementById('remoteIce').value.split('\n').filter(c => c);
+            iceCandidates.forEach(async candidate => {
+                try {
+                    await peerConnection.addIceCandidate(JSON.parse(candidate));
+                } catch (error) {
+                    console.error('Error adding ICE candidate:', error);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
