@@ -74,15 +74,9 @@ const Admin = () => {
                      credential:"password1"
                    },
           //  {urls:"turn:relay1.expressturn.com:3478",username:"efHQX4KJHR5MYJ3XBI",credential:"qtiPO023vsmOROXW"},
-                    // {urls:"stun:85.190.254.247:3478"},
           
             { urls: "stun:stun.l.google.com:19302" },
             { urls: "turn:turn.anyfirewall.com:443?transport=udp", username: "webrtc", credential: "webrtc" },
-          // {
-          //       urls: "turn:relay.metered.ca:443",
-          //       username: "open",
-          //       credential: "open"
-          //   }
         ]
     });
       peersRef.current.push({ peerId: userId, peer: newPeer });
