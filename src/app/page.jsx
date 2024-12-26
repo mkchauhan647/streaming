@@ -14,11 +14,11 @@ const User = () => {
     // const newPeer = new RTCPeerConnection();
     const newPeer = new RTCPeerConnection({
       iceServers: [
-        // {
-        //            urls:"turn:85.190.254.247:3478",
-        //            username:"username1",
-        //            credential:"password1"
-        //          },
+        {
+                   urls:"turn:85.190.254.247:3478",
+                   username:"username1",
+                   credential:"password1"
+                 },
          {urls:"turn:relay1.expressturn.com:3478",username:"efHQX4KJHR5MYJ3XBI",credential:"qtiPO023vsmOROXW"},
                   // {urls:"stun:85.190.254.247:3478"},
         
